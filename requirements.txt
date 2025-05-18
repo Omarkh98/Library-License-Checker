@@ -1,0 +1,6 @@
+requests
+python-dotenv
+flask
+numpy
+pandas
+scikit-learn
