@@ -1,5 +1,5 @@
 """
-
+Main logic
 """
 
 import os
@@ -9,13 +9,17 @@ from checker.helpers import (normalize_license_text,
                              rate_license,
                              fetch_license_from_pypi)
 
+from config.libs import (STANDARD_LIBS,
+                         PACKAGE_ALIASES)
+
 load_dotenv()
 
 API_KEY = os.getenv("LIBRARIES_IO_API_KEY")
 BASE_URL = "https://libraries.io/api"
 
 def fetch_license(package_name: str, platform = "pypi"):
-    url = f"{BASE_URL}/{platform}/{package_name}?api_key={API_KEY}"
+    actual_package = PACKAGE_ALIASES.get(package_name, package_name)
+    url = f"{BASE_URL}/{platform}/{actual_package}?api_key={API_KEY}"
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -29,7 +33,12 @@ def fetch_license(package_name: str, platform = "pypi"):
                 license_name = normalize_license_text(raw_license) if raw_license else "Unknown"
 
             if license_name == "Unknown":
-                license_name = fetch_license_from_pypi(package_name)
+                declared = data.get("declared_licenses", [])
+                if declared and isinstance(declared, list):
+                    license_name = normalize_license_text(declared[0])
+
+            if license_name == "Unknown":
+                license_name = fetch_license_from_pypi(actual_package)
 
             return {
                 "name": package_name,
@@ -54,6 +63,17 @@ def fetch_license(package_name: str, platform = "pypi"):
 def check_imported_packages_licenses(imports: list[str]) -> list[dict]:
     results = []
     for package in imports:
-        license_info = fetch_license(package)
+        actual_pkg = PACKAGE_ALIASES.get(package, package)
+        
+        if actual_pkg in STANDARD_LIBS:
+            license_name = STANDARD_LIBS[actual_pkg]
+            license_info = {
+                "name": package,
+                "license": license_name,
+                "rating": rate_license(license_name)
+            }
+        else:
+            license_info = fetch_license(actual_pkg)
+            license_info["name"] = package
         results.append(license_info)
     return results

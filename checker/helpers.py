@@ -1,28 +1,27 @@
 """
-
+Helper functions
 """
 
-import re
 import ast
 import requests
 
-def normalize_license_text(raw_license: str):
-    # Try to find SPDX-style license mentions
-    spdx_patterns = [
-        "MIT", "Apache[- ]?2.0", "BSD[- ]?3[- ]?Clause", "BSD[- ]?2[- ]?Clause", 
-        "GPL[- ]?v?3", "GPL[- ]?v?2", "LGPL[- ]?v?3", "MPL[- ]?2.0", "AGPL[- ]?v?3"
-    ]
-    
-    for pattern in spdx_patterns:
-        match = re.search(pattern, raw_license, re.IGNORECASE)
-        if match:
-            # Normalize format (e.g., turn "BSD 3-Clause" into "BSD-3-Clause")
-            return match.group(0).upper().replace(" ", "-")
-    
-    return "Unknown"
+from config.libs import LICENSE_NORMALIZATION_MAP
+
+def normalize_license_text(license_str: str) -> str:
+    try:
+        if not license_str:
+            return "Unknown"
+
+        norm = license_str.strip().lower()
+        for key in LICENSE_NORMALIZATION_MAP:
+            if key in norm:
+                return LICENSE_NORMALIZATION_MAP[key]
+        return "Unknown"
+    except Exception:
+        return "Unknown"
 
 def rate_license(license_name: str):
-    trusted = ["MIT", "APACHE", "BSD"]
+    trusted = ["MIT", "APACHE", "BSD", "PSF"]
     caution = ["LGPL", "MPL"]
     risky = ["GPL", "AGPL", "UNKNOWN", "OTHER"]
 
@@ -51,8 +50,16 @@ def fetch_license_from_pypi(package_name: str) -> str:
         pass
     return "Unknown"
 
-def extract_imports(code_str):
-    tree = ast.parse(code_str)
+def extract_imports(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        code_str = f.read()
+
+    try:
+        tree = ast.parse(code_str)
+    except SyntaxError as e:
+        print("Syntax error while parsing:", e)
+        return []
+
     imports = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -61,7 +68,7 @@ def extract_imports(code_str):
         elif isinstance(node, ast.ImportFrom):
             if node.module:
                 imports.add(node.module.split('.')[0])
-    return list(imports)
+    return sorted(list(imports))
 
 def read_code_file(file_path: str) -> str:
     with open(file_path, "r", encoding="utf-8") as f:
