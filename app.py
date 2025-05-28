@@ -1,5 +1,14 @@
 """
-Streamlit Application
+File name: app.py
+
+Description: Streamlit web application for checking software licenses of Python packages
+imported in an uploaded Python (.py) file.
+
+Features:
+- Upload a Python file and extract imported package names.
+- Fetch license information for each detected package using the license API.
+- Display package names, their licenses, and ratings in a table.
+- Provide option to download the results as an Excel spreadsheet.
 """
 
 import streamlit as st
@@ -8,8 +17,8 @@ import tempfile
 import os
 import io
 
-from checker.helpers import extract_imports
-from checker.license_api import fetch_license
+from helpers import extract_imports
+from license_api import fetch_license
 
 st.set_page_config(page_title = "Library License Checker", layout = "centered")
 

@@ -52,7 +52,7 @@ except ImportError:
 
 # Local application imports (for testing relative imports) -  won't help with license checking, but good to have.
 try:
-    from . import my_module  # Assume this is in the same directory.
+    from .. import my_module  # Assume this is in the same directory.
 except ImportError:
     pass
 

@@ -1,5 +1,11 @@
 """
-Libraries
+File name: license_map.py
+
+Description: This module defines mappings and constants used for normalizing and identifying
+software licenses and library package aliases in the context of license checking.
+
+Goal: These mappings facilitate consistent license identification and handling across
+different libraries and naming conventions.
 """
 
 LICENSE_NORMALIZATION_MAP = {
