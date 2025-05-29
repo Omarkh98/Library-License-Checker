@@ -1,0 +1,18 @@
+{
+    "name": "library_license_checker",
+    "description": "Analyzes a Python file, extracts imported libraries, checks their licenses, and rates legal risk.",
+    "input_type": "python_file",
+    "output_type": "license_report",
+    "entry_point": "main.py",
+    "functions": [
+      {
+        "name": "check_licenses",
+        "description": "Returns license details and risk ratings for imported libraries in a Python file.",
+        "arguments": {
+          "file_path": "Path to the Python file to analyze.",
+          "export": "Optional boolean to export the results as an Excel file.",
+          "output_path": "Optional path to the Excel file to write (default: license_report.xlsx)."
+        }
+      }
+    ]
+  }  

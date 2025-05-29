@@ -9,22 +9,52 @@ Description: This is the entry point for the Library License Checker tool. It or
 
 Goal: Designed to be CLI-invokable or tool-callable from an LLM orchestration system.
 """
+import os
+import pandas as pd
+from helpers import (extract_imports,
+                     print_license_report)
+from license_api import fetch_license
 
-from helpers import (read_code_file,
-                     extract_imports,
-                     print_license_report,
-                     parse_requirements_text)
+def check_licenses(file_path: str, export: bool = False, output_path: str = "license_report.xlsx"):
+    """
+    Analyze a Python file and print license info for all imported packages.
+    
+    Args:
+        file_path (str): Path to the Python file to analyze.
+        export (bool): Whether to export the results to an Excel file.
+        output_path (str): Path to save the Excel report (if export is True).
+    """
+    if not os.path.isfile(file_path):
+        print(f"[ERROR] File does not exist: {file_path}")
+        return
 
-from license_api import check_imported_packages_licenses
+    print(f"[INFO] Analyzing file: {file_path}")
 
-def main(file_path: str):
-    code_str = read_code_file(file_path)
-    imports = extract_imports(code_str)
-    print("Found imports:", imports)
+    packages = extract_imports(file_path)
+    if not packages:
+        print("[INFO] No packages found in the file.")
+        return
 
-    results = check_imported_packages_licenses(imports)
+    results = []
+    for pkg in packages:
+        result = fetch_license(pkg)
+        results.append(result)
+
+    print("\n[RESULT] License Check Report:\n")
     print_license_report(results)
 
+    if export:
+        df = pd.DataFrame(results)
+        df.to_excel(output_path, index=False)
+        print(f"\n[INFO] Report exported to: {output_path}")
+
 if __name__ == "__main__":
-    main("requirements.txt")
-    packages = parse_requirements_text("sample_requirements_test.txt")
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Library License Checker")
+    parser.add_argument("file", help="Path to the Python file to check")
+    parser.add_argument("--export", action="store_true", help="Export results to Excel")
+    parser.add_argument("--output", default="license_report.xlsx", help="Path for the Excel output file")
+    args = parser.parse_args()
+
+    check_licenses(args.file, export = args.export, output_path = args.output)
