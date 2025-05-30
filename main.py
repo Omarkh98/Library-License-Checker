@@ -50,6 +50,7 @@ def check_licenses(file_path: str, export: bool = False, output_path: str = "lic
 
 if __name__ == "__main__":
     import argparse
+    from helpers import print_license_report
 
     parser = argparse.ArgumentParser(description="Library License Checker")
     parser.add_argument("file", help="Path to the Python file to check")
@@ -57,4 +58,14 @@ if __name__ == "__main__":
     parser.add_argument("--output", default="license_report.xlsx", help="Path for the Excel output file")
     args = parser.parse_args()
 
-    check_licenses(args.file, export = args.export, output_path = args.output)
+    try:
+        results = check_licenses(args.file, export=args.export, output_path=args.output)
+        if results:
+            print("\n[RESULT] License Check Report:\n")
+            print_license_report(results)
+            if args.export:
+                print(f"\n[INFO] Report exported to: {args.output}")
+        else:
+            print("[INFO] No packages found in the file.")
+    except FileNotFoundError as e:
+        print(f"[ERROR] {e}")
