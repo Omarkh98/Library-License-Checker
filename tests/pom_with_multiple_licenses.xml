@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId>
+  <artifactId>multi-license-project</artifactId>
+  <version>1.0.0</version>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+    </license>
+    <license>
+      <name>MIT License</name>
+    </license>
+  </licenses>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.17.0</version>
+    </dependency>
+  </dependencies>
+</project>
