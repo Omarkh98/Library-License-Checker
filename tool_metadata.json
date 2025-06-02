@@ -2,7 +2,7 @@
   "name": "library_license_checker",
   "display_name": "Library License Checker",
   "description": "Checks license compliance for Python (.py) and Java (pom.xml, build.gradle) projects.",
-  "input_type": "python_file",
+  "input_type": "code_file",
   "output_type": "license_report",
   "entry_point": "main.py",
   "functions": [
